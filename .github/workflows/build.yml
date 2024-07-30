@@ -14,7 +14,7 @@ jobs:
       - name: Copy docker-compose.yaml via SSH
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: 194.87.237.197
           username: ${{ secrets.SSH_USER }}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           port: 22
@@ -49,14 +49,13 @@ jobs:
       - name: Connect with SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: 194.87.237.197
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
             echo DB_USER = ${{ secrets.DB_USER }} >> tkk-bot-app-env.txt
             echo DB_PASS = ${{ secrets.DB_PASS }} >> tkk-bot-app-env.txt
-            echo SSH_IP = ${{ secrets.SSH_HOST }} >> tkk-bot-app-env.txt
             echo SSH_USER = ${{ secrets.SSH_USER }} >> tkk-bot-app-env.txt
             echo BOT_TOKEN = ${{ secrets.BOT_TOKEN }} >> tkk-bot-app-env.txt
             echo BOT_NAME = ${{ secrets.BOT_NAME }} >> tkk-bot-app-env.txt
