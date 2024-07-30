@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: 'tkk-bot-postgres'
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+      POSTGRES_DB: postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+  app:
+#    build: /
+    image: "l2ilai/tkk-bot-app:latest"
+    container_name: 'tkk-bot-app'
+    restart: unless-stopped
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      SSH_IP: ${SSH_IP}
+      SSH_USER: ${SSH_USER}
+      BOT_TOKEN: ${BOT_TOKEN}
+      BOT_NAME: ${BOT_NAME}
+    depends_on:
+      - postgres
+    ports:
+      - 999:999
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"

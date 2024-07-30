@@ -1,0 +1,33 @@
+server:
+  port: ${SERVER_PORT:999}
+owners:
+  userNamesTelegram:
+    - ilai_s
+    - Marandyuk_Anatolii
+file:
+  pathDownload: ${PATH_DOWNLOAD:/}
+  size: ${SIZE_FILE:5000}
+bot:
+  name: ${BOT_NAME}
+  token: ${BOT_TOKEN}
+script:
+  name: ${SCRIPT_NAME:script}
+ssh-server:
+  ip: ${SSH_IP}
+  port: ${SSH_PORT:22}
+  user: ${SSH_USER}
+  pathToPrivateKey: ${SSH_PRIVATE_KEY_PATH:/home/id_rsa}
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/postgres}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+        hbm2ddl:
+          auto: update
