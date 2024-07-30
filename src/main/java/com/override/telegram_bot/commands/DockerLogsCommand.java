@@ -3,6 +3,7 @@ package com.override.telegram_bot.commands;
 import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.enums.BashCommands;
 import com.override.telegram_bot.enums.MessageContants;
+import com.override.telegram_bot.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -30,38 +31,41 @@ public class DockerLogsCommand extends ServiceCommand {
     @Autowired
     private SshCommandService sshCommandService;
 
+    @Autowired
+    private TelegramUserService telegramUserService;
+
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
+        if (telegramUserService.isOwner(user)) {
+            Pattern pattern = Pattern.compile("[0-9].*");
+            String numLogs = Optional.ofNullable(strings)
+                    .filter(str -> str.length == 2)
+                    .map(str -> str[0])
+                    .filter(str -> str.matches((pattern.pattern())))
+                    .orElse("500");
+            String dockerContainerName = Optional.ofNullable(strings)
+                    .filter(str -> str.length == 2)
+                    .filter(str -> !str[1].matches((pattern.pattern())))
+                    .map(str -> str[1])
+                    .orElse(strings.length == 1 ? strings[0] : null);
+            if (dockerContainerName == null) {
+                String msg = MessageContants.ERROR_LOGS_COMMAND;
+                sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, msg);
+                return;
+            }
+            String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);
+            String resultCommand = sshCommandService.execCommand(cmd);
+            InputStream stream = new ByteArrayInputStream(resultCommand.getBytes(StandardCharsets.UTF_8));
 
-        Pattern pattern = Pattern.compile("[0-9].*");
+            SendDocument dock = new SendDocument();
+            dock.setChatId(String.valueOf(chat.getId()));
+            dock.setDocument(new InputFile(stream, "logs-" + dockerContainerName + ".txt"));
 
-        String numLogs = Optional.ofNullable(strings)
-                .filter(str -> str.length == 2)
-                .map(str -> str[0])
-                .filter(str -> str.matches((pattern.pattern())))
-                .orElse("500");
-        String dockerContainerName = Optional.ofNullable(strings)
-                .filter(str -> str.length == 2)
-                .filter(str -> !str[1].matches((pattern.pattern())))
-                .map(str -> str[1])
-                .orElse(strings.length == 1 ? strings[0] : null);
-        if (dockerContainerName == null) {
-            String msg = MessageContants.ERROR_LOGS_COMMAND;
-            sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, msg);
-            return;
-        }
-        String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);
-        String resultCommand = sshCommandService.execCommand(cmd);
-        InputStream stream = new ByteArrayInputStream(resultCommand.getBytes(StandardCharsets.UTF_8));
-
-        SendDocument dock = new SendDocument();
-        dock.setChatId(String.valueOf(chat.getId()));
-        dock.setDocument(new InputFile(stream, "logs-" + dockerContainerName + ".txt"));
-
-        try {
-            absSender.execute(dock);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+            try {
+                absSender.execute(dock);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
