@@ -45,6 +45,7 @@ public class SshCommandService {
         }
     }
 
+
     public String execCommand(String command) {
         try (SSHClient sshConnect = new SSHClient();
              Session session = authToServer(serverProperties.getIp(), serverProperties.getPathToPrivateKey(), serverProperties.getUser(), sshConnect)) {

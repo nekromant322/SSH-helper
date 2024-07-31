@@ -1,10 +1,10 @@
 package com.override.telegram_bot.controller;
 
-import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.dto.ServerDTO;
 import com.override.telegram_bot.mapper.ServerMapper;
 import com.override.telegram_bot.model.Server;
 import com.override.telegram_bot.service.ServerServiceImpl;
+import com.override.telegram_bot.service.SshCommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +49,7 @@ public class ServerController {
     public List<ServerDTO> getAllServers() {
         return serverServiceImpl.findAllServers().stream().map(ServerMapper::userToUserDTO).toList();
     }
+
     //TODO exceptions
     @PostMapping()
     public ResponseEntity<HttpStatus> createServer(@RequestBody @Valid ServerDTO serverDTO, BindingResult bindingResult) {
@@ -59,6 +60,7 @@ public class ServerController {
         serverServiceImpl.saveServer(server);
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
     //TODO exceptions
     @PatchMapping("/server/{id}")
     public ResponseEntity<HttpStatus> updateServer(@RequestBody @Valid ServerDTO serverDTO, BindingResult bindingResult) {
@@ -78,7 +80,7 @@ public class ServerController {
 
     @ResponseBody
     @GetMapping("/bash/{ip}")
-    public String execCommand( @PathVariable String ip, @RequestParam String cmd) {
+    public String execCommand(@PathVariable String ip, @RequestParam String cmd) {
         return sshCommandService.execCommand(ip, cmd);
     }
 }

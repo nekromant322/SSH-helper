@@ -1,20 +1,15 @@
 package com.override.telegram_bot;
 
 
-import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.commands.ServiceCommand;
 import com.override.telegram_bot.properties.BotProperties;
-import com.override.telegram_bot.service.FileService;
-import com.override.telegram_bot.service.KeyboardService;
-import com.override.telegram_bot.service.TelegramUserService;
-import com.override.telegram_bot.service.UserDetailsServiceImpl;
+import com.override.telegram_bot.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -61,16 +56,12 @@ public class Bot extends TelegramLongPollingCommandBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            Long chatId = update.getMessage().getChatId();
-            User user = update.getMessage().getFrom();
-            if (telegramUserService.isOwner(user)) {
+        if (telegramUserService.isOwner(update)) {
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                Long chatId = update.getMessage().getChatId();
                 String msgText = update.getMessage().getText();
-                sendMessage(chatId, sshCommandService.execCommand(msgText));
-            }
-        } else if (update.hasMessage() && update.getMessage().hasDocument()) {
-            User user = update.getMessage().getFrom();
-            if (telegramUserService.isOwner(user)) {
+                sendMessage(chatId, msgText);
+            } else if (update.hasMessage() && update.getMessage().hasDocument()) {
                 document = update.getMessage().getDocument();
                 Long chatId = update.getMessage().getChatId();
                 try {
@@ -80,10 +71,7 @@ public class Bot extends TelegramLongPollingCommandBot {
                 } catch (IllegalArgumentException e) {
                     sendMessage(chatId, e.getMessage());
                 }
-            }
-        } else if (update.hasCallbackQuery()) {
-            User user = update.getCallbackQuery().getFrom();
-            if (telegramUserService.isOwner(user)) {
+            } else if (update.hasCallbackQuery()) {
                 String serverIp = update.getCallbackQuery().getData();
                 Long chatId = update.getCallbackQuery().getMessage().getChatId();
                 try {
