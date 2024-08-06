@@ -37,7 +37,6 @@ public class ServerServiceImpl {
         serverRepository.save(server);
     }
 
-    @Transactional
     public void updateServer(Server updatedServer) {
         Server newServer = findServer(updatedServer.getId());
         newServer.setName(updatedServer.getName());
@@ -45,7 +44,6 @@ public class ServerServiceImpl {
         serverRepository.save(newServer);
     }
 
-    @Transactional
     public void deleteServer(Long id) {
         if (serverRepository.findById(id).isPresent()) {
             serverRepository.deleteById(id);
