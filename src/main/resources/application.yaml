@@ -13,7 +13,7 @@ bot:
 script:
   name: ${SCRIPT_NAME:script}
 ssh-server:
-  ip: 194.87.237.197
+  ip: 194.87.237.176
   port: ${SSH_PORT:22}
   user: ${SSH_USER}
   pathToPrivateKey: ${SSH_PRIVATE_KEY_PATH:/home/id_rsa}

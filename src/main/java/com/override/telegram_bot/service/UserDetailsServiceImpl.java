@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -41,6 +42,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public User findUser(Long id) {
         Optional<User> userFromDb = userRepository.findById(id);
         return userFromDb.orElseThrow();
+    }
+
+    public User findUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByName(username);
+        return userOptional.orElseThrow();
     }
 
     public void saveUser(User user) {
@@ -79,10 +85,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return user.get();
     }
 
-    //TODO апдейт юзера(добавление ему нового сервера), если он уже есть в базе
-    public String createUserServer(String serverIp, String userName) {
+    public String createOrUpdateUserServer(String serverIp, String userName) {
         Server serverFromDB = serverService.findServerByIp(serverIp);
         List<User> users = findAllUsers();
+        boolean isNotUserContainsServer = users.stream().anyMatch(user -> !user.getServers().contains(serverFromDB));
+        if (isNotUserContainsServer) {
+            User existingUser = users.stream().filter(user -> user.getName().equals(userName)).findFirst().get();
+            Set<Server> servers = existingUser.getServers();
+            servers.add(serverFromDB);
+            existingUser.setServers(servers);
+            userRepository.save(existingUser);
+            return String.format(MessageContants.USER_UPDATE_IN_DB, userName, serverIp);
+        }
         User user = new User();
         user.setName(userName);
         user.setPassword(userName + "@" + serverIp);

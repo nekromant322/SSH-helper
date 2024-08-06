@@ -11,6 +11,7 @@ public class MessageContants {
     public static final String ERROR_USER_NAME = "Ошибка в имени пользователя! ❌";
     public static final String ERROR_FILE_NAME = "Ошибка в имени файла! ❌";
     public static final String USER_CREATE_IN_DB = "Пользователь - %s добавлен в БД ✅";
+    public static final String USER_UPDATE_IN_DB = "Для пользователя - %s добавлен сервер %s ✅";
     public static final String ERROR_AUTH_TO_SERVER = "Не удалось аутентифицироваться на сервера! ❌";
     public static final String ERROR_EXEC_COMMAND_TO_REMOTE_SERVER = "Не удалось выполнить команду на удалённом сервере! ❌";
     public static final String ERROR_EXEC_COMMAND_TO_LOCAL_SERVER = "Не удалось выполнить команду на локальном сервере! ❌";
