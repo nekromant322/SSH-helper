@@ -9,12 +9,12 @@ function loadUsers() {
 
             users.forEach(function (user) {
                 let roles = user.roles.map(role => role.role).join(', ');
-                let servers = user.servers.map(server => server.ip).join('\n');
+                let serversIP = user.servers.map(server => server.ip).join(', ');
                 let userRow = `
                         <tr>
                             <td>${user.id}</td>
                             <td>${user.name}</td>  
-                            <td>${servers}</td>            
+                            <td>${serversIP}</td>            
                             <td>${roles}</td>
                             <td><button type="button" class="btn btn-info btn-edit" data-id="${user.id}" data-toggle="modal" data-target="#ModalEditUser">Edit</button></td>
                             <td><button class="btn btn-danger btn-delete" data-id="${user.id}" data-toggle="modal" data-target="#ModalDeleteUserCentral">Delete</button></td>
@@ -23,17 +23,52 @@ function loadUsers() {
                 tbody.append(userRow);
             });
 
-            $('.btn-edit').click(function () {
+            $('.btn-delete').click(function () {
+
                 let userId = $(this).data('id');
                 $.ajax({
                     url: '/admin/users/' + userId,
                     type: 'GET',
                     dataType: 'json',
                     success: function (user) {
-                        console.log(user);
+                        let form = $('#ModalDeleteUserForm');
+                        let serverSelect = form.find('#ModalServerDelete');
+                        serverSelect.empty();
+                        form.find('#ModalIdDelete').val(user.id);
+                        form.find('#ModalFirstNameDelete').val(user.name);
+                        user.servers.forEach(server => {
+                            serverSelect.append(new Option(server.ip, server.ip));
+                        });
+
+                        form.find('#ModalRoleDelete').val(user.roles.map(r => r.role).join(', '));
+                        $('#ModalDeleteUserCentral').modal('show');
+                    }
+                });
+            });
+
+            $('.btn-edit').click(function () {
+                let userId = $(this).data('id');
+
+                $.ajax({
+                    url: '/admin/users/' + userId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (user) {
+                        console.log(user.servers);
+                        console.log(user.roles);
+
                         let form = $('#modalEditUserForm');
                         form.find('#ModalInputId').val(user.id);
                         form.find('#ModalInputName').val(user.name);
+                        form.find('#ModalInputPassword').val(user.password)
+
+                        let serverSelect = form.find('#ModalInputServer');
+                        serverSelect.empty();
+                        user.servers.forEach(server => {
+                            let isSelectedServer = user.servers.some(userServer => userServer === server);
+                            serverSelect.append(new Option(server.ip, server, isSelectedServer, isSelectedServer));
+                        });
+
                         let roleSelect = form.find('#ModalInputRole');
                         roleSelect.empty();
                         ['ROLE_ADMIN', 'ROLE_USER'].forEach(role => {
@@ -48,23 +83,6 @@ function loadUsers() {
                     }
                 });
             });
-
-            $('.btn-delete').click(function () {
-                let userId = $(this).data('id');
-                $.ajax({
-                    url: '/admin/users/' + userId,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (user) {
-                        // модальное окно удаления пользователя
-                        $('#ModalIdDelete').val(user.id);
-                        $('#ModalFirstNameDelete').val(user.name);
-                        $('#ModalServerDelete').val(user.servers.map(s => s.ip).join(', '));
-                        $('#ModalRoleDelete').val(user.roles.map(r => r.role).join(', '));
-                        $('#ModalDeleteUserCentral').modal('show');
-                    }
-                });
-            });
         },
         error: function (error) {
             console.error("Error of getting users:", error);
@@ -74,45 +92,16 @@ function loadUsers() {
 
 loadUsers();
 
-// форма добавления нового пользователя
-// $('#addUser').click(function (event) {
-//     event.preventDefault();
-//
-//     let user = {};
-//
-//     $('#newUserForm').find('input').each(function () {
-//         let attr = $(this).attr('name');
-//         user[attr] = $(this).val();
-//     });
-//
-//     user['roles'] = $('#newUserForm').find('select').val().map(role => ({role}));
-//
-//     $.ajax({
-//         url: "./admin",
-//         type: "POST",
-//         data: JSON.stringify(user),
-//         dataType: "json",
-//         contentType: "application/json; charset=utf-8",
-//         success: function () {
-//             loadUsers();
-//             window.location.href = '/admin';
-//         },
-//         error: function (xhr, status, error) {
-//             console.error('Error adding new user:', status, error);
-//         }
-//     });
-// });
-
 // обработчик кнопки сохранения редактирования пользователя
 $('#saveEditUser').click(function (event) {
     let user = {};
-
-    $('#modalEditUserForm').find('input').each(function () {
+    let form = $('#modalEditUserForm');
+    form.find('input').each(function () {
         let attr = $(this).attr('name');
         user[attr] = $(this).val();
     });
-
-    user['roles'] = $('#modalEditUserForm').find('select').val().map(role => ({role}));
+    user['servers'] = form.find('#ModalInputServer').val();
+    user['roles'] = form.find('#ModalInputRole').val().map(role => ({role}));
 
     $.ajax({
         url: "/admin/users/" + user.id,
@@ -133,11 +122,8 @@ $('#saveEditUser').click(function (event) {
 // Обработчик кнопки подтверждения удаления пользователя
 $('#confirmDeleteUser').click(function () {
     let userId = $('#ModalIdDelete').val();
-    // $('#ModalServerDelete').val(user.servers.map(s => s.name));
-    //TODO выбор сервера
-    let userServer = '194.87.237.197';
     $.ajax({
-        url: '/admin/users/' + userId + '/' + userServer,
+        url: '/admin/users/' + userId,
         type: 'DELETE',
         success: function () {
             $('#ModalDeleteUserCentral').modal('hide');
@@ -150,9 +136,6 @@ $('#confirmDeleteUser').click(function () {
 });
 
 function adminNavigationPanel(user) {
-    // let name = `<strong>${user.name}</strong>`;
-    // let roles = user.roles.map(role => role.role.replace('ROLE_', '')).join(', ');
-    // let content = `${name} with roles: ${roles}`;
     $("#adminNavPanel").html(" 🤖 SSH Key Keeper Bot");
 }
 
@@ -185,3 +168,32 @@ function TableOfCurrentUser(user) {
             `;
     $('#currentUser').html(userRow);
 }
+
+// форма добавления нового пользователя
+// $('#addUser').click(function (event) {
+//     event.preventDefault();
+//
+//     let user = {};
+//
+//     $('#newUserForm').find('input').each(function () {
+//         let attr = $(this).attr('name');
+//         user[attr] = $(this).val();
+//     });
+//
+//     user['roles'] = $('#newUserForm').find('select').val().map(role => ({role}));
+//
+//     $.ajax({
+//         url: "./admin",
+//         type: "POST",
+//         data: JSON.stringify(user),
+//         dataType: "json",
+//         contentType: "application/json; charset=utf-8",
+//         success: function () {
+//             loadUsers();
+//             window.location.href = '/admin';
+//         },
+//         error: function (xhr, status, error) {
+//             console.error('Error adding new user:', status, error);
+//         }
+//     });
+// });

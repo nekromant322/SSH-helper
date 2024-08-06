@@ -60,7 +60,7 @@ public class Bot extends TelegramLongPollingCommandBot {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 Long chatId = update.getMessage().getChatId();
                 String msgText = update.getMessage().getText();
-                sendMessage(chatId, msgText);
+                sendMessage(chatId, sshCommandService.execCommand(msgText));
             } else if (update.hasMessage() && update.getMessage().hasDocument()) {
                 document = update.getMessage().getDocument();
                 Long chatId = update.getMessage().getChatId();
