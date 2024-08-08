@@ -31,7 +31,7 @@ public class FileService {
 
     @Deprecated
     @SneakyThrows
-    public void uploadFile(String file_name, String file_id, String pathDownload, String token) {
+    public void downloadFile(String file_name, String file_id, String pathDownload, String token) {
         URL download = new URL(getUrlFile(file_id, token));
         try (FileOutputStream fos = new FileOutputStream(pathDownload + file_name); ReadableByteChannel rbc = Channels.newChannel(download.openStream())) {
             System.out.println("Start upload");

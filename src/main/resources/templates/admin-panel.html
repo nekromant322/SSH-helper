@@ -7,6 +7,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" integrity="sha256-PDJQdTN7dolQWDASIoBVrjkuOEaI137FI15sqI3Oxu8=" crossorigin="anonymous">
     <title>Admin panel</title>
 
 </head>
@@ -15,7 +16,7 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" ></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha256-KuvCVS19rfTjoLgMyDDCdOkRRlhNrY4psEM4uezts2M=" crossorigin="anonymous"></script>
 <nav class="navbar navbar-dark bg-dark">
     <h4 class="text-light" id="adminNavPanel">Admin with roles</h4>
     <a class="text-light" href="/logout">Logout</a>
@@ -184,6 +185,11 @@
                                            aria-controls="newServer" aria-selected="false">New Server</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link" id="newPubKey" data-toggle="tab" href="#pubKey"
+                                           role="tab"
+                                           aria-controls="serverConsole" aria-selected="false">Public Key</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link" id="newServerConsole" data-toggle="tab" href="#serverConsole"
                                            role="tab"
                                            aria-controls="serverConsole" aria-selected="false">Server Console</a>
@@ -214,6 +220,32 @@
 
                                                 </tbody>
                                             </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="pubKey" aria-labelledby="newPubKey">
+                                        <div class="container m-auto">
+                                            <div class="row justify-content-center">
+                                                <div class="col-auto">
+                                                    <div class="card shadow">
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-borderless mb-0">
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <th scope="row">Copy:</th>
+                                                                        <td>
+                                                                            <div class="copy-clipboard d-flex justify-content-between">
+                                                                                <span class="lead h5">public key for telegram bot&nbsp;&nbsp;</span><i class="bi bi-clipboard-plus btn p-1 pt-0" data-bs-toggle="tooltip" title="Скопировать"></i>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="newServer" aria-labelledby="newServerTable">
@@ -420,5 +452,6 @@
 
 <script src="/js/admin-script.js"></script>
 <script src="/js/server-script.js"></script>
+<script src="/js/copy-script.js"></script>
 </body>
 </html>
