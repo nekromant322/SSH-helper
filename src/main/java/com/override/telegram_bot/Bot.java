@@ -2,6 +2,7 @@ package com.override.telegram_bot;
 
 
 import com.override.telegram_bot.commands.ServiceCommand;
+import com.override.telegram_bot.enums.MessageContants;
 import com.override.telegram_bot.properties.BotProperties;
 import com.override.telegram_bot.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class Bot extends TelegramLongPollingCommandBot {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 Long chatId = update.getMessage().getChatId();
                 String msgText = update.getMessage().getText();
-                sendMessage(chatId, msgText);
+                sendMessage(chatId, sshCommandService.execCommand(msgText));
             } else if (update.hasMessage() && update.getMessage().hasDocument()) {
                 document = update.getMessage().getDocument();
                 Long chatId = update.getMessage().getChatId();
@@ -75,8 +76,11 @@ public class Bot extends TelegramLongPollingCommandBot {
                 String serverIp = update.getCallbackQuery().getData();
                 Long chatId = update.getCallbackQuery().getMessage().getChatId();
                 try {
-                    sendMessage(chatId, fileService.executeLoadKeyFile(serverIp, document, caption, getBotToken()));
-                    sendMessage(chatId, userDetailsService.createUserServer(serverIp, caption));
+                    String msg = fileService.executeLoadKeyFile(serverIp, document, caption, getBotToken());
+                    sendMessage(chatId, msg);
+                    if (msg.equals(MessageContants.FILE_LOAD_AND_USER_CREAT)) {
+                        sendMessage(chatId, userDetailsService.createOrUpdateUserServer(serverIp, caption));
+                    }
                 } catch (IllegalArgumentException e) {
                     sendMessage(chatId, e.getMessage());
                 }
