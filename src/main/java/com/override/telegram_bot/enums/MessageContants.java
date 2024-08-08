@@ -5,6 +5,7 @@ public class MessageContants {
     public static final String TELEGRAM_URL_DOWNLOAD_FILE = "https://api.telegram.org/file/bot%s/%s";
     public static final String URL_NOT_FOUND = "Не удалось получить ссылку для загрузки файла!";
     public static final String FILE_LOAD_AND_USER_CREAT = "Файл %s Загружен на сервер! 🚀 \nПользователь %s создан! ✅";
+    public static final String FILE_UPLOAD = "Файл %s загружен в домашнюю директорию пользователя /home/%s/ ✅";
     public static final String FILE_LOAD_BUT_USER_NOT_CREAT = "Файл %s Загружен на сервер! 🚀 \nНо пользователь %s не был создан! ❌";
     public static final String FILE_NOT_LOAD = "Не удалось загрузить файл ❌";
     public static final String FILE_NOT_PUB_KEY = "Расширение файла не .pub! ❌";

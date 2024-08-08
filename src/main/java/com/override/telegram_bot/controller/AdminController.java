@@ -57,7 +57,7 @@ public class AdminController {
     }
     //TODO exceptions
     @PatchMapping("/users/{id}")
-    public ResponseEntity<HttpStatus> updateUser(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> updateUser(@RequestBody UserDTO userDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
@@ -66,9 +66,9 @@ public class AdminController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{id}/{server}")
-    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id, @PathVariable("server") String serverIp) {
-        userDetailsServiceImpl.deleteUser(id, serverIp);
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
+        userDetailsServiceImpl.deleteUser(id);
         return ResponseEntity.ok(HttpStatus.NO_CONTENT);
     }
 }

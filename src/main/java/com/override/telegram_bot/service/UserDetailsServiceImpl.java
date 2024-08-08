@@ -58,22 +58,28 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.save(user);
     }
 
-    @Transactional
     public void updateUser(User updatedUser) {
         User newUser = findUser(updatedUser.getId());
+        updatedUser.getServers().forEach(s-> System.out.println(s.getIp()));
         newUser.setName(updatedUser.getName());
         newUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         newUser.setRoles(updatedUser.getRoles());
         newUser.setServers(updatedUser.getServers());
+        newUser.getServers().stream()
+                .filter(s -> updatedUser.getServers().stream().filter(server -> !server.getIp().contains(s.getIp())).isParallel())
+                .map(Server::getIp)
+                .peek(System.out::println)
+                .forEach(ip -> sshCommandService.execCommand(ip, String.format(BashCommands.DELUSER, updatedUser.getName())));
         userRepository.save(newUser);
     }
 
-    @Transactional
-    public void deleteUser(Long id, String serverIp) {
+    public void deleteUser(Long id) {
         User user = findUser(id);
+        String username = user.getName();
+        user.getServers().stream()
+                .map(Server::getIp)
+                .forEach(ip -> sshCommandService.execCommand(ip, String.format(BashCommands.DELUSER, username)));
         userRepository.deleteById(id);
-        String resultCommand = sshCommandService.execCommand(serverIp, String.format(BashCommands.DELUSER, user.getName()));
-        System.out.println(resultCommand);
     }
 
     @Override

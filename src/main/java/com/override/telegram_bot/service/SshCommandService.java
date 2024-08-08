@@ -8,7 +8,9 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.UserAuthException;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.xfer.FileSystemFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,6 +23,9 @@ public class SshCommandService {
     @Autowired
     private ServerProperties serverProperties;
 
+    @Value("${script.name}")
+    private String scriptName;
+
     public Session authToServer(String serverIP, String pathToPrivateKey, String serverUserName, SSHClient sshConnect) throws UserAuthException {
         try {
             KeyProvider keys = sshConnect.loadKeys(pathToPrivateKey);
@@ -28,6 +33,19 @@ public class SshCommandService {
             sshConnect.connect(serverIP, DEFAULT_PORT);
             sshConnect.authPublickey(serverUserName, keys);
             return sshConnect.startSession();
+        } catch (IOException ex) {
+            throw new UserAuthException(MessageContants.ERROR_AUTH_TO_SERVER);
+        }
+    }
+
+    public String uploadFileToServer(String serverIP, String userName) throws UserAuthException {
+        try (SSHClient sshConnect = new SSHClient()) {
+            KeyProvider keys = sshConnect.loadKeys(serverProperties.getPathToPrivateKey());
+            sshConnect.addHostKeyVerifier(new PromiscuousVerifier());
+            sshConnect.connect(serverIP, DEFAULT_PORT);
+            sshConnect.authPublickey(serverProperties.getUser(), keys);
+            sshConnect.newSCPFileTransfer().upload(new FileSystemFile("src/main/resources/script/script"), "/home/" + userName + "/");
+            return String.format(MessageContants.FILE_UPLOAD, scriptName, userName);
         } catch (IOException ex) {
             throw new UserAuthException(MessageContants.ERROR_AUTH_TO_SERVER);
         }
