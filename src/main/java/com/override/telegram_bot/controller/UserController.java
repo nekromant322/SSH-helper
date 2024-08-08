@@ -4,7 +4,7 @@ package com.override.telegram_bot.controller;
 import com.override.telegram_bot.dto.UserDTO;
 import com.override.telegram_bot.mapper.UserMapper;
 import com.override.telegram_bot.model.User;
-import com.override.telegram_bot.service.UserDetailsServiceImpl;
+import com.override.telegram_bot.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+    private UserServiceImpl userServiceImpl;
 
     @GetMapping()
     public String userPage(Model model, Authentication authentication) {
@@ -25,11 +25,11 @@ public class UserController {
         return "user-page";
     }
 
-    @ResponseBody
-    @GetMapping("/me")
-    public UserDTO thisUser(Authentication authentication) {
-        User principal = (User) authentication.getPrincipal();
-        User user = userDetailsServiceImpl.findUser(principal.getId());
-        return UserMapper.userToUserDTO(user);
-    }
+//    @ResponseBody
+//    @GetMapping("/me")
+//    public UserDTO thisUser(Authentication authentication) {
+//        User principal = (User) authentication.getPrincipal();
+//        User user = userServiceImpl.findUser(principal.getId());
+//        return UserMapper.userToUserDTO(user);
+//    }
 }

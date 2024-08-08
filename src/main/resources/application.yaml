@@ -10,8 +10,6 @@ file:
 bot:
   name: ${BOT_NAME}
   token: ${BOT_TOKEN}
-script:
-  name: ${SCRIPT_NAME:script}
 ssh-server:
   ip: 194.87.237.176
   port: ${SSH_PORT:22}

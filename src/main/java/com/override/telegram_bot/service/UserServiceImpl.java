@@ -8,12 +8,8 @@ import com.override.telegram_bot.model.Server;
 import com.override.telegram_bot.model.User;
 import com.override.telegram_bot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserServiceImpl {
 
     @Autowired
     private UserRepository userRepository;
@@ -82,20 +78,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByName(name);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User not found!");
-        }
-        return user.get();
-    }
-
     public String createOrUpdateUserServer(String serverIp, String userName) {
         Server serverFromDB = serverService.findServerByIp(serverIp);
         List<User> users = findAllUsers();
-        boolean isNotUserContainsServer = users.stream().anyMatch(user -> !user.getServers().contains(serverFromDB));
-        if (isNotUserContainsServer) {
+        boolean isUserContainsServer = users.stream().anyMatch(user -> user.getServers().contains(serverFromDB));
+        if (!isUserContainsServer) {
             User existingUser = users.stream().filter(user -> user.getName().equals(userName)).findFirst().get();
             Set<Server> servers = existingUser.getServers();
             servers.add(serverFromDB);
@@ -105,7 +92,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         User user = new User();
         user.setName(userName);
-        user.setPassword(userName + "@" + serverIp);
         user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
         user.setServers(Collections.singleton(serverFromDB));
         saveUser(user);

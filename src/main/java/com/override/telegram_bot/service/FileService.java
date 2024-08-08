@@ -23,9 +23,6 @@ public class FileService {
     @Value("${file.pathDownload}")
     private String pathDownload;
 
-    @Value("${script.name}")
-    private String scriptName;
-
     @Autowired
     private SshCommandService sshCommandService;
 
@@ -59,7 +56,7 @@ public class FileService {
         if (isValidFile(docName)) {
             String docId = document.getFileId();
             String fileUrl = getUrlFile(docId, botToken);
-            String wgetCommand = String.format(BashCommands.WGET_AND_EXEC_SCRIPT, docName, fileUrl, scriptName, newServerUser);
+            String wgetCommand = String.format(BashCommands.WGET_AND_CREATE_USER, docName, fileUrl, newServerUser);
             System.out.println(wgetCommand);
             String resultCommand = sshCommandService.execCommand(serverIp, wgetCommand);
             if (isUserCreate(resultCommand)) {
@@ -81,7 +78,7 @@ public class FileService {
     }
 
     private boolean isUserCreate(String string) {
-        return string.contains("Copying files from `/etc/skel'"); //Строка для валидации успешного выполнения скриптана сервере
+        return string.contains("success"); //Строка для валидации успешного выполнения скриптана сервере
     }
 }
 

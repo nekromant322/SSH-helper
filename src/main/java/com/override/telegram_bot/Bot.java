@@ -29,7 +29,7 @@ public class Bot extends TelegramLongPollingCommandBot {
     private TelegramUserService telegramUserService;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private UserServiceImpl userDetailsService;
 
     @Autowired
     private FileService fileService;
@@ -78,7 +78,7 @@ public class Bot extends TelegramLongPollingCommandBot {
                 try {
                     String msg = fileService.executeLoadKeyFile(serverIp, document, caption, getBotToken());
                     sendMessage(chatId, msg);
-                    if (msg.equals(MessageContants.FILE_LOAD_AND_USER_CREAT)) {
+                    if (msg.equals(String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, document.getFileName(), caption))) {
                         sendMessage(chatId, userDetailsService.createOrUpdateUserServer(serverIp, caption));
                     }
                 } catch (IllegalArgumentException e) {

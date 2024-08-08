@@ -4,7 +4,7 @@ package com.override.telegram_bot.controller;
 import com.override.telegram_bot.dto.UserDTO;
 import com.override.telegram_bot.mapper.UserMapper;
 import com.override.telegram_bot.model.User;
-import com.override.telegram_bot.service.UserDetailsServiceImpl;
+import com.override.telegram_bot.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +22,18 @@ import java.util.List;
 public class AdminController {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+    private UserServiceImpl userServiceImpl;
 
     @GetMapping
     public String getAllUsers(Model model) {
-        model.addAttribute("users", userDetailsServiceImpl.findAllUsers());
+        model.addAttribute("users", userServiceImpl.findAllUsers());
         return "admin-panel";
     }
 
     @GetMapping("/users/{id}")
     @ResponseBody
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userDetailsServiceImpl.findUser(id);
+        User user = userServiceImpl.findUser(id);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
@@ -43,7 +43,7 @@ public class AdminController {
     @GetMapping("/allUsers")
     @ResponseBody
     public List<UserDTO> getAllUsers() {
-        return userDetailsServiceImpl.findAllUsers().stream().map(UserMapper::userToUserDTO).toList();
+        return userServiceImpl.findAllUsers().stream().map(UserMapper::userToUserDTO).toList();
     }
     //TODO exceptions
     @PostMapping()
@@ -52,7 +52,7 @@ public class AdminController {
             return ResponseEntity.badRequest().build();
         }
         User user = UserMapper.userDTOToUser(userDTO);
-        userDetailsServiceImpl.saveUser(user);
+        userServiceImpl.saveUser(user);
         return ResponseEntity.ok(HttpStatus.OK);
     }
     //TODO exceptions
@@ -61,14 +61,14 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        userDetailsServiceImpl.updateUser(UserMapper.userDTOToUser(userDTO));
+        userServiceImpl.updateUser(UserMapper.userDTOToUser(userDTO));
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
-        userDetailsServiceImpl.deleteUser(id);
+        userServiceImpl.deleteUser(id);
         return ResponseEntity.ok(HttpStatus.NO_CONTENT);
     }
 }
