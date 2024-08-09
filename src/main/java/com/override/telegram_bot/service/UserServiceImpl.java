@@ -3,7 +3,6 @@ package com.override.telegram_bot.service;
 
 import com.override.telegram_bot.enums.BashCommands;
 import com.override.telegram_bot.enums.MessageContants;
-import com.override.telegram_bot.model.Role;
 import com.override.telegram_bot.model.Server;
 import com.override.telegram_bot.model.User;
 import com.override.telegram_bot.repository.UserRepository;
@@ -50,7 +49,6 @@ public class UserServiceImpl {
         if (optionalUser.isPresent()) {
             return;
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
@@ -58,8 +56,6 @@ public class UserServiceImpl {
         User newUser = findUser(updatedUser.getId());
         updatedUser.getServers().forEach(s-> System.out.println(s.getIp()));
         newUser.setName(updatedUser.getName());
-        newUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        newUser.setRoles(updatedUser.getRoles());
         newUser.setServers(updatedUser.getServers());
         newUser.getServers().stream()
                 .filter(s -> updatedUser.getServers().stream().filter(server -> !server.getIp().contains(s.getIp())).isParallel())
@@ -81,8 +77,10 @@ public class UserServiceImpl {
     public String createOrUpdateUserServer(String serverIp, String userName) {
         Server serverFromDB = serverService.findServerByIp(serverIp);
         List<User> users = findAllUsers();
-        boolean isUserContainsServer = users.stream().anyMatch(user -> user.getServers().contains(serverFromDB));
-        if (!isUserContainsServer) {
+        boolean isNotUserContainsServer = users.stream()
+                .filter(user -> user.getName().equals(userName))
+                .anyMatch(user -> !user.getServers().contains(serverFromDB));
+        if (isNotUserContainsServer) {
             User existingUser = users.stream().filter(user -> user.getName().equals(userName)).findFirst().get();
             Set<Server> servers = existingUser.getServers();
             servers.add(serverFromDB);
@@ -92,7 +90,6 @@ public class UserServiceImpl {
         }
         User user = new User();
         user.setName(userName);
-        user.setRoles(Collections.singleton(new Role(1L, "ROLE_USER")));
         user.setServers(Collections.singleton(serverFromDB));
         saveUser(user);
         return String.format(MessageContants.USER_CREATE_IN_DB, userName);

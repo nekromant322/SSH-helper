@@ -47,7 +47,7 @@ public class ServerController {
     @GetMapping("/allServers")
     @ResponseBody
     public List<ServerDTO> getAllServers() {
-        return serverServiceImpl.findAllServers().stream().map(ServerMapper::userToUserDTO).toList();
+        return serverServiceImpl.findAllServers().stream().map(ServerMapper::serverToServerDTO).toList();
     }
 
     //TODO exceptions
@@ -56,7 +56,7 @@ public class ServerController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        Server server = ServerMapper.userDTOToUser(serverDTO);
+        Server server = ServerMapper.serverDTOToServer(serverDTO);
         serverServiceImpl.saveServer(server);
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -67,7 +67,7 @@ public class ServerController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        serverServiceImpl.updateServer(ServerMapper.userDTOToUser(serverDTO));
+        serverServiceImpl.updateServer(ServerMapper.serverDTOToServer(serverDTO));
 
         return ResponseEntity.ok(HttpStatus.OK);
     }

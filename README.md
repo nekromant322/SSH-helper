@@ -14,6 +14,4 @@
 - DB_USER={имя юзера Postgresql, например: postgres}
 - DB_PASS={пароль юзераPostgresql, например: postgres}
 
-### Добавить пользователя администратора в пустую базу PostgeSQL:
-- Выполнить скрипт лежащий в папке проекте по пути: src/main/java/com/override/telegram_bot/script/init_db.sql, где name - это имя юзера, а password - пароль зашифрованный в кодировке BCrypt
-- ( WEB панель азминистрирования можно открыть по адресу: http://localhost:999/login )
+WEB панель администрирования можно открыть по адресу: http://localhost:999/login

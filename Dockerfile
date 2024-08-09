@@ -5,6 +5,6 @@ COPY src ./src
 RUN mvn -B -f pom.xml clean package -DskipTests
 
 FROM openjdk:17
-COPY --from=build /workspace/target/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar"]
+COPY --from=build /workspace/target/*.jar tkk-bot.jar
+ENTRYPOINT ["java","-jar","tkk-bot.jar"]
 

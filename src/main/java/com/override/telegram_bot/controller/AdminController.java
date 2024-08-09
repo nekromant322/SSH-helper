@@ -13,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -45,16 +44,7 @@ public class AdminController {
     public List<UserDTO> getAllUsers() {
         return userServiceImpl.findAllUsers().stream().map(UserMapper::userToUserDTO).toList();
     }
-    //TODO exceptions
-    @PostMapping()
-    public ResponseEntity<HttpStatus> createUser(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().build();
-        }
-        User user = UserMapper.userDTOToUser(userDTO);
-        userServiceImpl.saveUser(user);
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
+
     //TODO exceptions
     @PatchMapping("/users/{id}")
     public ResponseEntity<HttpStatus> updateUser(@RequestBody UserDTO userDTO, BindingResult bindingResult) {
