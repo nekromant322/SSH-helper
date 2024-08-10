@@ -7,22 +7,19 @@ import com.override.telegram_bot.model.Server;
 import com.override.telegram_bot.model.User;
 import com.override.telegram_bot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private ServerServiceImpl serverService;
@@ -39,11 +36,6 @@ public class UserServiceImpl {
         return userFromDb.orElseThrow();
     }
 
-    public User findUserByUsername(String username) {
-        Optional<User> userOptional = userRepository.findByName(username);
-        return userOptional.orElseThrow();
-    }
-
     public void saveUser(User user) {
         Optional<User> optionalUser = userRepository.findByName(user.getName());
         if (optionalUser.isPresent()) {
@@ -54,13 +46,15 @@ public class UserServiceImpl {
 
     public void updateUser(User updatedUser) {
         User newUser = findUser(updatedUser.getId());
-        updatedUser.getServers().forEach(s-> System.out.println(s.getIp()));
         newUser.setName(updatedUser.getName());
-        newUser.setServers(updatedUser.getServers());
+        Set<Server> newServers =
+                newUser.getServers().stream()
+                        .filter(s -> updatedUser.getServers().stream().map(Server::getIp).toList().contains(s.getIp()))
+                        .collect(Collectors.toSet());
+        newUser.setServers(newServers);
         newUser.getServers().stream()
-                .filter(s -> updatedUser.getServers().stream().filter(server -> !server.getIp().contains(s.getIp())).isParallel())
+                .filter(server -> !newServers.contains(server))
                 .map(Server::getIp)
-                .peek(System.out::println)
                 .forEach(ip -> sshCommandService.execCommand(ip, String.format(BashCommands.DELUSER, updatedUser.getName())));
         userRepository.save(newUser);
     }

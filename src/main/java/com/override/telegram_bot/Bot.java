@@ -54,9 +54,8 @@ public class Bot extends TelegramLongPollingCommandBot {
         return botProperties.getToken();
     }
 
-//    private Document document;
-//    private String caption;
     HashMap<Long, TelegramFileDTO> telegramFile = new HashMap<>();
+
     @Override
     public void processNonCommandUpdate(Update update) {
         if (telegramUserService.isOwner(update)) {

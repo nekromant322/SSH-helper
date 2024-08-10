@@ -60,7 +60,7 @@ function loadUsers() {
                         serverSelect.empty();
                         user.servers.forEach(server => {
                             let isSelectedServer = user.servers.some(userServer => userServer === server);
-                            serverSelect.append(new Option(server.ip, server, isSelectedServer, isSelectedServer));
+                            serverSelect.append(new Option(server.ip, server.ip, isSelectedServer, isSelectedServer));
                         });
 
                         $('#ModalEditUser').modal('show');
@@ -87,7 +87,8 @@ $('#saveEditUser').click(function (event) {
         let attr = $(this).attr('name');
         user[attr] = $(this).val();
     });
-    user['servers'] = form.find('#ModalInputServer').val(); //.map(server => ({server}));
+
+    user['servers'] = form.find('#ModalInputServer').val().map(ip => ({ip}));
 
     $.ajax({
         url: "/admin/users/" + user.id,

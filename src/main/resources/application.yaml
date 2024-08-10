@@ -4,6 +4,7 @@ owners:
   namesOwnerTelegramBot:
     - ilai_s
     - Marandyuk_Anatolii
+  pass: ${WEB_PASS}
 file:
   pathDownload: ${PATH_DOWNLOAD:/}
   size: ${SIZE_FILE:5000}

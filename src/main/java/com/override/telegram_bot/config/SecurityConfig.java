@@ -1,5 +1,6 @@
 package com.override.telegram_bot.config;
 
+import com.override.telegram_bot.properties.OwnerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +21,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private SuccessUserHandler successUserHandler;
 
     @Autowired
+    private OwnerProperties ownerProperties;
+
+    @Autowired
     public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("admin")
-                .password("$2y$10$O0vKt3oXzrPvU6bup5VBoe6.1rzEtu6nr5DEsQ7nXNNsPLfGcLH86")
+                .password(passwordEncoder().encode(ownerProperties.getPass()))
                 .roles("ADMIN");
     }
 
