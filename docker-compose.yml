@@ -24,6 +24,7 @@ services:
       SSH_USER: ${SSH_USER}
       BOT_TOKEN: ${BOT_TOKEN}
       BOT_NAME: ${BOT_NAME}
+      WEB_PASS: ${WEB_PASS}
     depends_on:
       - postgres
     ports:
