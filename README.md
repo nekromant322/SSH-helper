@@ -15,3 +15,5 @@
 - DB_PASS={пароль юзераPostgresql, например: postgres}
 
 WEB панель администрирования можно открыть по адресу: http://localhost:999/login
+- Логин: admin
+- Пароль: admin
