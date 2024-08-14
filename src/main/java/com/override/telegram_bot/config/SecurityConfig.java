@@ -1,5 +1,6 @@
 package com.override.telegram_bot.config;
 
+import com.override.telegram_bot.properties.OwnerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +18,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
     private SuccessUserHandler successUserHandler;
 
     @Autowired
+    private OwnerProperties ownerProperties;
+
+    @Autowired
     public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.inMemoryAuthentication()
+                .withUser("admin")
+                .password(passwordEncoder().encode(ownerProperties.getPass()))
+                .roles("ADMIN");
     }
 
     @Override
@@ -32,7 +36,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()

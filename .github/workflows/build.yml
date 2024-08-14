@@ -54,15 +54,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            echo DB_USER = ${{ secrets.DB_USER }} >> tkk-bot-app-env.txt
-            echo DB_PASS = ${{ secrets.DB_PASS }} >> tkk-bot-app-env.txt
-            echo SSH_USER = ${{ secrets.SSH_USER }} >> tkk-bot-app-env.txt
-            echo BOT_TOKEN = ${{ secrets.BOT_TOKEN }} >> tkk-bot-app-env.txt
-            echo BOT_NAME = ${{ secrets.BOT_NAME }} >> tkk-bot-app-env.txt
+            echo DB_USER=${{ secrets.DB_USER }} >> tkk-bot-app-env.txt
+            echo DB_PASS=${{ secrets.DB_PASS }} >> tkk-bot-app-env.txt
+            echo SSH_USER=${{ secrets.SSH_USER }} >> tkk-bot-app-env.txt
+            echo BOT_TOKEN=${{ secrets.BOT_TOKEN }} >> tkk-bot-app-env.txt
+            echo BOT_NAME=${{ secrets.BOT_NAME }} >> tkk-bot-app-env.txt
+            echo WEB_PASS=${{ secrets.WEB_PASS }} >> tkk-bot-app-env.txt
             
             sudo docker stop tkk-bot-app
             sudo docker rm tkk-bot-app
-            sudo docker rmi l2ilai/tkk-bot-app
+            sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/tkk-bot-app
             sudo docker-compose -f docker-compose.yml --env-file=tkk-bot-app-env.txt up -d
             sudo rm tkk-bot-app-env.txt
             

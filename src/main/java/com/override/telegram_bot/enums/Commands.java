@@ -12,7 +12,6 @@ public enum Commands {
     LOGS("logs", "Показать докер логи"),
     DOCKER("docker", "Показать имена докер контейнеров"),
     DOCKERS("dockers", "Показать имена докер контейнеров");
-
     private String alias;
     private String description;
 
