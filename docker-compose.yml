@@ -15,7 +15,7 @@ services:
         max-size: "10m"
 
   app:
-    image: "l2ilai/tkk-bot-app:latest"
+    image: "${DOCKERHUB_USERNAME}/tkk-bot-app:latest"
     container_name: 'tkk-bot-app'
     restart: unless-stopped
     environment:

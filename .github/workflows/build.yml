@@ -60,6 +60,7 @@ jobs:
             echo BOT_TOKEN=${{ secrets.BOT_TOKEN }} >> tkk-bot-app-env.txt
             echo BOT_NAME=${{ secrets.BOT_NAME }} >> tkk-bot-app-env.txt
             echo WEB_PASS=${{ secrets.WEB_PASS }} >> tkk-bot-app-env.txt
+            echo DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} >> tkk-bot-app-env.txt
             
             sudo docker stop tkk-bot-app
             sudo docker rm tkk-bot-app
