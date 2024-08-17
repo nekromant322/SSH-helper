@@ -6,6 +6,7 @@ import com.override.telegram_bot.dto.TelegramFileDTO;
 import com.override.telegram_bot.enums.MessageContants;
 import com.override.telegram_bot.properties.BotProperties;
 import com.override.telegram_bot.service.*;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
@@ -55,6 +56,8 @@ public class Bot extends TelegramLongPollingCommandBot {
     }
 
     HashMap<Long, TelegramFileDTO> telegramFile = new HashMap<>();
+
+    @Getter
     HashMap<Long, String> userServer = new HashMap<>();
 
     @Override
