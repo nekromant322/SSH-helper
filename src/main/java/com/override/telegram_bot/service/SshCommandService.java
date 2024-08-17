@@ -1,5 +1,6 @@
 package com.override.telegram_bot.service;
 
+import com.override.telegram_bot.dto.TelegramUserProperties;
 import com.override.telegram_bot.enums.MessageContants;
 import com.override.telegram_bot.properties.ServerProperties;
 import net.schmizz.sshj.SSHClient;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import static net.schmizz.sshj.SSHClient.DEFAULT_PORT;
 
@@ -58,5 +60,14 @@ public class SshCommandService {
         } catch (IOException e) {
             return MessageContants.ERROR_EXEC_COMMAND_TO_LOCAL_SERVER;
         }
+    }
+
+    public String execCommandOnSelectServer(Long chatId, String cmd) {
+        HashMap<Long, String> userServer = TelegramUserProperties.getUserServer();
+        if (userServer.containsKey(chatId)) {
+            String serverIp = userServer.get(chatId);
+            return execCommand(serverIp, cmd);
+        }
+        return execCommand(cmd);
     }
 }

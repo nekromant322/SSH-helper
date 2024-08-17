@@ -1,8 +1,8 @@
 package com.override.telegram_bot.commands;
 
-import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.enums.BashCommands;
 import com.override.telegram_bot.enums.MessageContants;
+import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class DockerLogsCommand extends ServiceCommand {
                 return;
             }
             String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);
-            String resultCommand = sshCommandService.execCommand(cmd);
+            String resultCommand = sshCommandService.execCommandOnSelectServer(chat.getId(), cmd);
             InputStream stream = new ByteArrayInputStream(resultCommand.getBytes(StandardCharsets.UTF_8));
 
             SendDocument dock = new SendDocument();

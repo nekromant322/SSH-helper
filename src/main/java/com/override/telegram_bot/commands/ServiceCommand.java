@@ -1,7 +1,5 @@
 package com.override.telegram_bot.commands;
 
-import com.override.telegram_bot.Bot;
-import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
@@ -21,6 +19,22 @@ public abstract class ServiceCommand extends BotCommand {
     private TelegramUserService telegramUserService;
 
     protected void sendAnswer(AbsSender absSender, Long chatId, String commandName, User user, String text) {
+        if (telegramUserService.isOwner(user)) {
+            SendMessage message = new SendMessage();
+            message.enableMarkdown(true);
+            message.setParseMode("HTML");
+            message.setChatId(chatId.toString());
+            message.setText(text);
+
+            try {
+                absSender.execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void sendAnswerDefaultParseMode(AbsSender absSender, Long chatId, String commandName, User user, String text) {
         if (telegramUserService.isOwner(user)) {
             SendMessage message = new SendMessage();
             message.enableMarkdown(true);

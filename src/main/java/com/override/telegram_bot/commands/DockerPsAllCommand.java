@@ -1,7 +1,7 @@
 package com.override.telegram_bot.commands;
 
-import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.enums.BashCommands;
+import com.override.telegram_bot.service.SshCommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -26,7 +26,7 @@ public class DockerPsAllCommand extends ServiceCommand {
         String cmd = String.format(BashCommands.DOCKER_PS_ALL);
 
         if (strings == null || strings.length == 0) {
-            String resultCommand = sshCommandService.execCommand(cmd);
+            String resultCommand = sshCommandService.execCommandOnSelectServer(chat.getId(), cmd);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, resultCommand);
         }
     }

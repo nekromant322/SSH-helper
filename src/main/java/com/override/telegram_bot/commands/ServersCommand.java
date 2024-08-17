@@ -1,5 +1,6 @@
 package com.override.telegram_bot.commands;
 
+import com.override.telegram_bot.enums.MessageContants;
 import com.override.telegram_bot.service.KeyboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,6 @@ public class ServersCommand extends ServiceCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         sendKeyboard(absSender, chat.getId(), this.getCommandIdentifier(), user,
-                "Выбери сервер для выполнения команд:", keyboardService.getServersInlineKeyboard());
+                MessageContants.SERVER_FOR_EXEC_COMMAND, keyboardService.getServersInlineKeyboard());
     }
 }
