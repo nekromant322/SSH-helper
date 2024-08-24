@@ -8,12 +8,11 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.UserAuthException;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
-import net.schmizz.sshj.xfer.FileSystemFile;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static net.schmizz.sshj.SSHClient.DEFAULT_PORT;
 
@@ -22,6 +21,9 @@ public class SshCommandService {
 
     @Autowired
     private ServerProperties serverProperties;
+
+    @Autowired
+    private TelegramUserServiceImpl telegramUserServiceImpl;
 
     public Session authToServer(String serverIP, String pathToPrivateKey, String serverUserName, SSHClient sshConnect) throws UserAuthException {
         try {
@@ -58,5 +60,11 @@ public class SshCommandService {
         } catch (IOException e) {
             return MessageContants.ERROR_EXEC_COMMAND_TO_LOCAL_SERVER;
         }
+    }
+
+    public String execCommandOnSelectServer(Long chatId, String cmd) {
+        return Optional.ofNullable(telegramUserServiceImpl.getTelegramUser(chatId))
+                .map(s -> execCommand(s.getServerIp(), cmd))
+                .orElseGet(() ->execCommand(cmd));
     }
 }

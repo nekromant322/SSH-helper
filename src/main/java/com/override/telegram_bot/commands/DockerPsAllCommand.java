@@ -26,7 +26,7 @@ public class DockerPsAllCommand extends ServiceCommand {
         String cmd = String.format(BashCommands.DOCKER_PS_ALL);
 
         if (strings == null || strings.length == 0) {
-            String resultCommand = sshCommandService.execCommand(cmd);
+            String resultCommand = sshCommandService.execCommandOnSelectServer(chat.getId(), cmd);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, resultCommand);
         }
     }

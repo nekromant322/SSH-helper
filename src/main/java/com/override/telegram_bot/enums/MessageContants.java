@@ -16,6 +16,6 @@ public class MessageContants {
     public static final String ERROR_EXEC_COMMAND_TO_REMOTE_SERVER = "Не удалось выполнить команду на удалённом сервере! ❌";
     public static final String ERROR_EXEC_COMMAND_TO_LOCAL_SERVER = "Не удалось выполнить команду на локальном сервере! ❌";
     public static final String ERROR_LOGS_COMMAND = "Неверная команда!❌ Пример: /logs <имя контейнера> или /logs <число строк логов> <имя контейнера>";
-    public static final String LIST_SERVERS = "Список доступных серверов:\n";
     public static final String START_TEXT = "Ку! Я могу добавить публичный SSH 🔑 на любой доступный сервер. Узнать доступные сервера /servers. Получить помощь /help";
+    public static final String SERVER = "Выбран сервер %s";
 }

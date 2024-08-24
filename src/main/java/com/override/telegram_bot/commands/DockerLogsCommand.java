@@ -3,7 +3,7 @@ package com.override.telegram_bot.commands;
 import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.enums.BashCommands;
 import com.override.telegram_bot.enums.MessageContants;
-import com.override.telegram_bot.service.TelegramUserService;
+import com.override.telegram_bot.service.TelegramUserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -32,11 +32,11 @@ public class DockerLogsCommand extends ServiceCommand {
     private SshCommandService sshCommandService;
 
     @Autowired
-    private TelegramUserService telegramUserService;
+    private TelegramUserServiceImpl telegramUserServiceImpl;
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        if (telegramUserService.isOwner(user)) {
+        if (telegramUserServiceImpl.isOwner(user)) {
             Pattern pattern = Pattern.compile("[0-9].*");
             String numLogs = Optional.ofNullable(strings)
                     .filter(str -> str.length == 2)
@@ -54,7 +54,7 @@ public class DockerLogsCommand extends ServiceCommand {
                 return;
             }
             String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);
-            String resultCommand = sshCommandService.execCommand(cmd);
+            String resultCommand = sshCommandService.execCommandOnSelectServer(chat.getId(), cmd);
             InputStream stream = new ByteArrayInputStream(resultCommand.getBytes(StandardCharsets.UTF_8));
 
             SendDocument dock = new SendDocument();

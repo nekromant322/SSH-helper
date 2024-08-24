@@ -2,7 +2,7 @@ package com.override.telegram_bot;
 
 
 import com.override.telegram_bot.commands.ServiceCommand;
-import com.override.telegram_bot.dto.TelegramFileDTO;
+import com.override.telegram_bot.model.TelegramUser;
 import com.override.telegram_bot.enums.MessageContants;
 import com.override.telegram_bot.properties.BotProperties;
 import com.override.telegram_bot.service.*;
@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -28,7 +27,7 @@ public class Bot extends TelegramLongPollingCommandBot {
     private KeyboardService keyboardService;
 
     @Autowired
-    private TelegramUserService telegramUserService;
+    private TelegramUserServiceImpl telegramUserServiceImpl;
 
     @Autowired
     private UserServiceImpl userDetailsService;
@@ -54,21 +53,29 @@ public class Bot extends TelegramLongPollingCommandBot {
         return botProperties.getToken();
     }
 
-    HashMap<Long, TelegramFileDTO> telegramFile = new HashMap<>();
-
     @Override
     public void processNonCommandUpdate(Update update) {
-        if (telegramUserService.isOwner(update)) {
+        if (telegramUserServiceImpl.isOwner(update)) {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 Long chatId = update.getMessage().getChatId();
                 String msgText = update.getMessage().getText();
-                sendMessage(chatId, sshCommandService.execCommand(msgText));
+                TelegramUser telegramUser = telegramUserServiceImpl.getTelegramUser(chatId);
+                if (telegramUser != null) {
+                    sendMessage(chatId, sshCommandService.execCommand(telegramUser.getServerIp(), msgText));
+                } else {
+                    sendMessage(chatId, sshCommandService.execCommand(msgText));
+                }
             } else if (update.hasMessage() && update.getMessage().hasDocument()) {
                 Long chatId = update.getMessage().getChatId();
                 try {
                     Document document = update.getMessage().getDocument();
-                    String caption = telegramUserService.getNewServerUserName(update.getMessage().getCaption());
-                    telegramFile.put(chatId, new TelegramFileDTO(document,caption));
+                    String caption = telegramUserServiceImpl.getNewServerUserName(update.getMessage().getCaption());
+                    telegramUserServiceImpl.saveOrUpdateTelegramUser(TelegramUser.builder()
+                            .chatId(chatId)
+                            .docFileName(document.getFileName())
+                            .docFileId(document.getFileId())
+                            .caption(caption)
+                            .build());
                     fileService.isValidFile(document.getFileName());
                     sendMessage(chatId, "Выбери сервер:", keyboardService.getServersInlineKeyboard());
                 } catch (IllegalArgumentException e) {
@@ -77,18 +84,25 @@ public class Bot extends TelegramLongPollingCommandBot {
             } else if (update.hasCallbackQuery()) {
                 String serverIp = update.getCallbackQuery().getData();
                 Long chatId = update.getCallbackQuery().getMessage().getChatId();
-                TelegramFileDTO telegramFileDTO = telegramFile.get(chatId);
-                Document document = telegramFileDTO.getDocument();
-                String caption = telegramFileDTO.getCaption();
-                telegramFile.clear();
-                try {
-                    String msg = fileService.executeLoadKeyFile(serverIp, document, caption, getBotToken());
-                    sendMessage(chatId, msg);
-                    if (msg.equals(String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, document.getFileName(), serverIp, caption))) {
-                        sendMessage(chatId, userDetailsService.createOrUpdateUserServer(serverIp, caption));
+                TelegramUser telegramUser = telegramUserServiceImpl.getTelegramUser(chatId);
+                if (telegramUser == null || telegramUser.getDocFileName() == null) {
+                    telegramUserServiceImpl.saveOrUpdateTelegramUser(TelegramUser.builder()
+                            .chatId(chatId)
+                            .serverIp(serverIp)
+                            .build());
+                    sendMessage(chatId, String.format(MessageContants.SERVER, serverIp));
+                } else {
+                    String caption = telegramUser.getCaption();
+                    telegramUserServiceImpl.deleteDoc(chatId);
+                    try {
+                        String msg = fileService.executeLoadKeyFile(serverIp, telegramUser.getDocFileName(), telegramUser.getDocFileId(), caption, getBotToken());
+                        sendMessage(chatId, msg);
+                        if (msg.equals(String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, telegramUser.getDocFileName(), serverIp, caption))) {
+                            userDetailsService.createOrUpdateUserServer(serverIp, caption);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        sendMessage(chatId, e.getMessage());
                     }
-                } catch (IllegalArgumentException e) {
-                    sendMessage(chatId, e.getMessage());
                 }
             }
         }

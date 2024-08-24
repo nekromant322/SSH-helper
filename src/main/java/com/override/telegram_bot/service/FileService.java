@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Document;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -30,10 +29,8 @@ public class FileService {
         }
     }
 
-    public String executeLoadKeyFile(String serverIp, Document document, String newServerUser, String botToken) throws IllegalArgumentException {
-        String docName = document.getFileName();
+    public String executeLoadKeyFile(String serverIp, String docName, String docId, String newServerUser, String botToken) throws IllegalArgumentException {
         if (isValidFile(docName)) {
-            String docId = document.getFileId();
             String fileUrl = getUrlFile(docId, botToken);
             String wgetCommand = String.format(BashCommands.WGET_AND_CREATE_USER, docName, fileUrl, newServerUser);
             String resultCommand = sshCommandService.execCommand(serverIp, wgetCommand);
