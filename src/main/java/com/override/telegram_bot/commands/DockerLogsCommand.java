@@ -3,7 +3,7 @@ package com.override.telegram_bot.commands;
 import com.override.telegram_bot.service.SshCommandService;
 import com.override.telegram_bot.enums.BashCommands;
 import com.override.telegram_bot.enums.MessageContants;
-import com.override.telegram_bot.service.TelegramUserServiceImpl;
+import com.override.telegram_bot.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -32,11 +32,11 @@ public class DockerLogsCommand extends ServiceCommand {
     private SshCommandService sshCommandService;
 
     @Autowired
-    private TelegramUserServiceImpl telegramUserServiceImpl;
+    private TelegramUserService telegramUserService;
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        if (telegramUserServiceImpl.isOwner(user)) {
+        if (telegramUserService.isOwner(user)) {
             Pattern pattern = Pattern.compile("[0-9].*");
             String numLogs = Optional.ofNullable(strings)
                     .filter(str -> str.length == 2)
@@ -50,7 +50,7 @@ public class DockerLogsCommand extends ServiceCommand {
                     .orElse(strings.length == 1 ? strings[0] : null);
             if (dockerContainerName == null) {
                 String msg = MessageContants.ERROR_LOGS_COMMAND;
-                sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, msg);
+                sendAnswer(absSender, chat.getId(), user, msg);
                 return;
             }
             String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);

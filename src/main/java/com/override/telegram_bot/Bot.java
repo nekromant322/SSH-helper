@@ -27,7 +27,7 @@ public class Bot extends TelegramLongPollingCommandBot {
     private KeyboardService keyboardService;
 
     @Autowired
-    private TelegramUserServiceImpl telegramUserServiceImpl;
+    private TelegramUserService telegramUserService;
 
     @Autowired
     private UserServiceImpl userDetailsService;
@@ -55,57 +55,94 @@ public class Bot extends TelegramLongPollingCommandBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
-        if (telegramUserServiceImpl.isOwner(update)) {
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                Long chatId = update.getMessage().getChatId();
-                String msgText = update.getMessage().getText();
-                TelegramUser telegramUser = telegramUserServiceImpl.getTelegramUser(chatId);
-                if (telegramUser != null) {
-                    sendMessage(chatId, sshCommandService.execCommand(telegramUser.getServerIp(), msgText));
-                } else {
-                    sendMessage(chatId, sshCommandService.execCommand(msgText));
-                }
-            } else if (update.hasMessage() && update.getMessage().hasDocument()) {
-                Long chatId = update.getMessage().getChatId();
-                try {
-                    Document document = update.getMessage().getDocument();
-                    String caption = telegramUserServiceImpl.getNewServerUserName(update.getMessage().getCaption());
-                    telegramUserServiceImpl.saveOrUpdateTelegramUser(TelegramUser.builder()
-                            .chatId(chatId)
-                            .docFileName(document.getFileName())
-                            .docFileId(document.getFileId())
-                            .caption(caption)
-                            .build());
-                    fileService.isValidFile(document.getFileName());
-                    sendMessage(chatId, "Выбери сервер:", keyboardService.getServersInlineKeyboard());
-                } catch (IllegalArgumentException e) {
-                    sendMessage(chatId, e.getMessage());
-                }
-            } else if (update.hasCallbackQuery()) {
-                String serverIp = update.getCallbackQuery().getData();
-                Long chatId = update.getCallbackQuery().getMessage().getChatId();
-                TelegramUser telegramUser = telegramUserServiceImpl.getTelegramUser(chatId);
-                if (telegramUser == null || telegramUser.getDocFileName() == null) {
-                    telegramUserServiceImpl.saveOrUpdateTelegramUser(TelegramUser.builder()
-                            .chatId(chatId)
-                            .serverIp(serverIp)
-                            .build());
-                    sendMessage(chatId, String.format(MessageContants.SERVER, serverIp));
-                } else {
-                    String caption = telegramUser.getCaption();
-                    telegramUserServiceImpl.deleteDoc(chatId);
-                    try {
-                        String msg = fileService.executeLoadKeyFile(serverIp, telegramUser.getDocFileName(), telegramUser.getDocFileId(), caption, getBotToken());
-                        sendMessage(chatId, msg);
-                        if (msg.equals(String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, telegramUser.getDocFileName(), serverIp, caption))) {
-                            userDetailsService.createOrUpdateUserServer(serverIp, caption);
-                        }
-                    } catch (IllegalArgumentException e) {
-                        sendMessage(chatId, e.getMessage());
-                    }
-                }
+        if (!telegramUserService.isOwner(update)) {
+            return;
+        }
+        if (isText(update)) {
+            Long chatId = update.getMessage().getChatId();
+            String msgText = update.getMessage().getText();
+            TelegramUser telegramUser = telegramUserService.getTelegramUser(chatId);
+            execTextCommandOnRemoteServer(telegramUser, chatId, msgText);
+        } else if (isDocument(update)) {
+            Long chatId = update.getMessage().getChatId();
+            Document document = update.getMessage().getDocument();
+            String caption = telegramUserService.getNewServerUserName(update.getMessage().getCaption());
+            saveDocument(chatId, document, caption);
+        } else if (isButtonPress(update)) {
+            String serverIp = update.getCallbackQuery().getData();
+            Long chatId = update.getCallbackQuery().getMessage().getChatId();
+            TelegramUser telegramUser = telegramUserService.getTelegramUser(chatId);
+            if (isNoDocument(telegramUser)) {
+                saveChosenServerIp(chatId, serverIp);
+            } else {
+                createUserOnRemoteServer(serverIp, telegramUser, chatId);
+                telegramUserService.deleteDoc(chatId);
             }
         }
+    }
+
+    private void createUserOnRemoteServer(String serverIp, TelegramUser telegramUser, Long chatId) {
+        String caption =  telegramUser.getCaption();
+        try {
+            String msg = fileService.executeUploadKeyFileAndCreateUser(serverIp, telegramUser.getDocFileName(), telegramUser.getDocFileId(), caption, getBotToken());
+            sendMessage(chatId, msg);
+            if (isUserWasCreatedOnServer(serverIp, telegramUser, msg, caption)) {
+                userDetailsService.createOrUpdateUserServer(serverIp, caption);
+            }
+        } catch (IllegalArgumentException e) {
+            sendMessage(chatId, e.getMessage());
+        }
+    }
+
+    private static boolean isUserWasCreatedOnServer(String serverIp, TelegramUser telegramUser, String msg, String caption) {
+        return msg.equals(String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, telegramUser.getDocFileName(), serverIp, caption));
+    }
+
+    private void saveChosenServerIp(Long chatId, String serverIp) {
+        telegramUserService.saveOrUpdateTelegramUser(TelegramUser.builder()
+                .chatId(chatId)
+                .serverIp(serverIp)
+                .build());
+        sendMessage(chatId, String.format(MessageContants.CHOSEN_SERVER, serverIp));
+    }
+
+    private static boolean isNoDocument(TelegramUser telegramUser) {
+        return telegramUser == null || telegramUser.getDocFileName() == null;
+    }
+
+    private void saveDocument(Long chatId, Document document, String caption) {
+        try {
+            telegramUserService.saveOrUpdateTelegramUser(TelegramUser.builder()
+                    .chatId(chatId)
+                    .docFileName(document.getFileName())
+                    .docFileId(document.getFileId())
+                    .caption(caption)
+                    .build());
+            fileService.isValidFile(document.getFileName());
+            sendMessage(chatId, "Выбери сервер:", keyboardService.getServersInlineKeyboard());
+        } catch (IllegalArgumentException e) {
+            sendMessage(chatId, e.getMessage());
+        }
+    }
+
+    private void execTextCommandOnRemoteServer(TelegramUser telegramUser, Long chatId, String msgText) {
+        if (telegramUser != null) {
+            sendMessage(chatId, sshCommandService.execCommand(telegramUser.getServerIp(), msgText));
+        } else {
+            sendMessage(chatId, sshCommandService.execCommand(msgText));
+        }
+    }
+
+    private static boolean isButtonPress(Update update) {
+        return update.hasCallbackQuery();
+    }
+
+    private static boolean isDocument(Update update) {
+        return update.hasMessage() && update.getMessage().hasDocument();
+    }
+
+    private static boolean isText(Update update) {
+        return update.hasMessage() && update.getMessage().hasText();
     }
 
     private void sendMessage(long chatId, String msg) {

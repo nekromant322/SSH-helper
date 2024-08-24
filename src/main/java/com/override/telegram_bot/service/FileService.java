@@ -29,11 +29,11 @@ public class FileService {
         }
     }
 
-    public String executeLoadKeyFile(String serverIp, String docName, String docId, String newServerUser, String botToken) throws IllegalArgumentException {
+    public String executeUploadKeyFileAndCreateUser(String serverIp, String docName, String docId, String newServerUser, String botToken) throws IllegalArgumentException {
         if (isValidFile(docName)) {
             String fileUrl = getUrlFile(docId, botToken);
-            String wgetCommand = String.format(BashCommands.WGET_AND_CREATE_USER, docName, fileUrl, newServerUser);
-            String resultCommand = sshCommandService.execCommand(serverIp, wgetCommand);
+            String uploadKeyFileAndCreateUserCommand = String.format(BashCommands.WGET_AND_CREATE_USER, docName, fileUrl, newServerUser);
+            String resultCommand = sshCommandService.execCommand(serverIp, uploadKeyFileAndCreateUserCommand);
             if (isUserCreate(resultCommand)) {
                 return String.format(MessageContants.FILE_LOAD_AND_USER_CREAT, docName, serverIp, newServerUser);
             }

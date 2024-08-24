@@ -23,7 +23,7 @@ public class SshCommandService {
     private ServerProperties serverProperties;
 
     @Autowired
-    private TelegramUserServiceImpl telegramUserServiceImpl;
+    private TelegramUserService telegramUserService;
 
     public Session authToServer(String serverIP, String pathToPrivateKey, String serverUserName, SSHClient sshConnect) throws UserAuthException {
         try {
@@ -63,7 +63,7 @@ public class SshCommandService {
     }
 
     public String execCommandOnSelectServer(Long chatId, String cmd) {
-        return Optional.ofNullable(telegramUserServiceImpl.getTelegramUser(chatId))
+        return Optional.ofNullable(telegramUserService.getTelegramUser(chatId))
                 .map(s -> execCommand(s.getServerIp(), cmd))
                 .orElseGet(() ->execCommand(cmd));
     }

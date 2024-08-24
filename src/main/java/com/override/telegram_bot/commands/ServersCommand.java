@@ -21,7 +21,7 @@ public class ServersCommand extends ServiceCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        sendKeyboard(absSender, chat.getId(), this.getCommandIdentifier(), user,
+        sendKeyboard(absSender, chat.getId(), user,
                 "Выбери сервер для выполнения команд:", keyboardService.getServersInlineKeyboard());
     }
 }

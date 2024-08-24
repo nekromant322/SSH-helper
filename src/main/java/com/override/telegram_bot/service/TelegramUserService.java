@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
-public class TelegramUserServiceImpl {
+public class TelegramUserService {
 
     @Autowired
     private OwnerProperties ownerProperties;

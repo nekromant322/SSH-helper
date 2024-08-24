@@ -1,6 +1,6 @@
 package com.override.telegram_bot.commands;
 
-import com.override.telegram_bot.service.TelegramUserServiceImpl;
+import com.override.telegram_bot.service.TelegramUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,15 +16,14 @@ public abstract class ServiceCommand extends BotCommand {
     }
 
     @Autowired
-    private TelegramUserServiceImpl telegramUserServiceImpl;
+    private TelegramUserService telegramUserService;
 
-    void sendAnswer(AbsSender absSender, Long chatId, String commandName, User user, String text) {
-        if (telegramUserServiceImpl.isOwner(user)) {
+    void sendAnswer(AbsSender absSender, Long chatId, User user, String text) {
+        if (telegramUserService.isOwner(user)) {
             SendMessage message = new SendMessage();
             message.enableMarkdown(true);
             message.setChatId(chatId.toString());
             message.setText(text);
-
             try {
                 absSender.execute(message);
             } catch (TelegramApiException e) {
@@ -33,8 +32,8 @@ public abstract class ServiceCommand extends BotCommand {
         }
     }
 
-    void sendKeyboard(AbsSender absSender, Long chatId, String commandName, User user, String msg, InlineKeyboardMarkup markupInline) {
-        if (telegramUserServiceImpl.isOwner(user)) {
+    void sendKeyboard(AbsSender absSender, Long chatId, User user, String msg, InlineKeyboardMarkup markupInline) {
+        if (telegramUserService.isOwner(user)) {
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
             message.setText(msg);
