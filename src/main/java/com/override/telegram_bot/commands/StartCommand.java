@@ -17,6 +17,6 @@ public class StartCommand extends ServiceCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, MessageContants.START_TEXT);
+        sendAnswer(absSender, chat.getId(), user, MessageContants.START_TEXT);
     }
 }

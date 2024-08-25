@@ -14,6 +14,14 @@ services:
       options:
         max-size: "10m"
 
+  redis:
+    image: redis:6.2.14
+    container_name: 'tkk-bot-redis'
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASS}
+    ports:
+      - "6379:6379"
+
   app:
     image: "${DOCKERHUB_USERNAME}/tkk-bot-app:latest"
     container_name: 'tkk-bot-app'
@@ -25,8 +33,11 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
       BOT_NAME: ${BOT_NAME}
       WEB_PASS: ${WEB_PASS}
+      REDIS_PASS: ${REDIS_PASS}
+      REDIS_HOST: ${REDIS_HOST}
     depends_on:
       - postgres
+      - redis
     ports:
       - 999:999
     logging:

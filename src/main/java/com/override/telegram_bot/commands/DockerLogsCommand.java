@@ -50,11 +50,11 @@ public class DockerLogsCommand extends ServiceCommand {
                     .orElse(strings.length == 1 ? strings[0] : null);
             if (dockerContainerName == null) {
                 String msg = MessageContants.ERROR_LOGS_COMMAND;
-                sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), user, msg);
+                sendAnswer(absSender, chat.getId(), user, msg);
                 return;
             }
             String cmd = String.format(BashCommands.DOCKER_LOGS, numLogs, dockerContainerName);
-            String resultCommand = sshCommandService.execCommand(cmd);
+            String resultCommand = sshCommandService.execCommandOnSelectServer(chat.getId(), cmd);
             InputStream stream = new ByteArrayInputStream(resultCommand.getBytes(StandardCharsets.UTF_8));
 
             SendDocument dock = new SendDocument();
