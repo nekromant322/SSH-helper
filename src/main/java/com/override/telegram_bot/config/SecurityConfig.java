@@ -28,10 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.inMemoryAuthentication()
                 .withUser("admin")
                 .password(passwordEncoder().encode(ownerProperties.getPass()))
-                .roles("ADMIN")
-                .and()
-                .withUser("admin1")
-                .password("$2y$10$Fjqr5Mwnw41zNl8oZuomDe.82cpKZA.fti3.7iaTheBKyCal.H7FC")
                 .roles("ADMIN");
     }
 

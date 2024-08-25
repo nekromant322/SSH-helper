@@ -10,6 +10,8 @@ function tooltipUpdate( button, tooltip, title ) {
     return tooltip;
 }
 
+const unsecuredCopyToClipboard = (text) => { const textArea = document.createElement("textarea"); textArea.value=text; document.body.appendChild(textArea); textArea.focus();textArea.select(); try{document.execCommand('copy')}catch(err){console.error('Unable to copy to clipboard',err)}document.body.removeChild(textArea)};
+
 copyArray.map( function ( copy ) {
     let text    = copy.querySelector( 'span' ).innerText;
     let button  = copy.querySelector( 'i' );
@@ -34,7 +36,7 @@ copyArray.map( function ( copy ) {
             "o0NBOgptnsXhspHJSBfCpQ+yHICQfy7yIivVFnd0crEtDcm6TI7yMaYeaagYXRPLu1R58wWfDWEadjTx1n" +
             "AZaIpfIeQ== yoasakura13@gmail.com";
 
-        window.navigator.clipboard.writeText("new_user=" + name_bot + " &&\n" +
+        unsecuredCopyToClipboard("new_user=" + name_bot + " &&\n" +
             "sudo adduser \"$new_user\" --disabled-password --gecos \"\" &>/dev/null &&\n" +
             "sudo usermod -aG sudo \"$new_user\" &&\n" +
             "sudo mkdir /home/\"$new_user\"/.ssh &&\n" +

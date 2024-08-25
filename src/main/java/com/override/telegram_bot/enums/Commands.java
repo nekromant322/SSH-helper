@@ -11,7 +11,8 @@ public enum Commands {
     SERVERS("servers", "Показать список доступных серверов"),
     LOGS("logs", "Показать докер логи"),
     DOCKER("docker", "Показать имена докер контейнеров"),
-    DOCKERS("dockers", "Показать имена докер контейнеров");
+    DOCKERS("dockers", "Показать имена докер контейнеров"),
+    WEB("web", "Показать адрес веб админки");
     private String alias;
     private String description;
 
