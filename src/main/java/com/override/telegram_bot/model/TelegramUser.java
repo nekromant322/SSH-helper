@@ -1,12 +1,15 @@
 package com.override.telegram_bot.model;
 
 import lombok.*;
-import org.telegram.telegrambots.meta.api.objects.Document;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.Serializable;
 
-@Entity
+
 @Getter
 @Setter
 @ToString
@@ -14,12 +17,12 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = {"id"})
 @AllArgsConstructor
-@Table(name = "t_telegram_user")
-public class TelegramUser {
+@RedisHash("TelegramUser")
+public class TelegramUser implements Serializable {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
     private Long id;
+    @Indexed
     private Long chatId;
     private String docFileName;
     private String docFileId;
